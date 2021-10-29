@@ -1,6 +1,12 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_constructors_in_immutables
 import 'package:flutter/material.dart';
 import 'package:ortalama_hesap/contants/app_constants.dart';
+import 'package:ortalama_hesap/helper/data_helper.dart';
+import 'package:ortalama_hesap/model/ders.dart';
+import 'package:ortalama_hesap/widgets/ders_listesi.dart';
+import 'package:ortalama_hesap/widgets/harf_sec.dart';
+import 'package:ortalama_hesap/widgets/kredi_sec.dart';
+import 'package:ortalama_hesap/widgets/ortalama_goster.dart';
 
 class OrtalamaHesaplaPage extends StatefulWidget {
   OrtalamaHesaplaPage({Key? key}) : super(key: key);
@@ -11,11 +17,16 @@ class OrtalamaHesaplaPage extends StatefulWidget {
 
 class _OrtalamaHesaplaPageState extends State<OrtalamaHesaplaPage> {
   var formKey = GlobalKey<FormState>();
+  double? ort = 4;
+  int? kredi = 0;
+  String girilenDers = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          backgroundColor: Sabitler.randCol,
+          backgroundColor: Colors.transparent,
           elevation: 0,
           title: Center(
             child: Text(
@@ -31,24 +42,23 @@ class _OrtalamaHesaplaPageState extends State<OrtalamaHesaplaPage> {
             Row(
               children: [
                 Expanded(
-                  flex: 2,
-                  child: Container(
-                    child: _buildForm(),
-                  ),
+                  flex: 3,
+                  child: _buildForm(),
                 ),
                 Expanded(
-                  flex: 1,
-                  child: Container(
-                    child: Text('Form'),
-                    color: Colors.yellow,
-                  ),
+                  flex: 2,
+                  child: OrtalamaGoster(
+                      ortalama: DataHelper.ortalamaHesap(),
+                      dersSayisi: DataHelper.tumDersler.length),
                 ),
               ],
             ),
             Expanded(
-              child: Container(
-                child: Text('List'),
-                color: Sabitler.randCol,
+              child: DersListesi(
+                onDismiss: (index) {
+                  DataHelper.tumDersler.removeAt(index);
+                  setState(() {});
+                },
               ),
             )
           ],
@@ -60,15 +70,35 @@ class _OrtalamaHesaplaPageState extends State<OrtalamaHesaplaPage> {
         key: formKey,
         child: Column(
           children: [
-            _buildTextFormField(),
-            TextFormField(),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 2),
+              child: _buildTextFormField(),
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.access_alarm_rounded),
+                Expanded(
+                  child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: HarfDegeri(harfSecildi: (deger) {
+                        ort = deger;
+                      })),
                 ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: KrediSec(
+                      krediSecildi: (deger) {
+                        kredi = deger;
+                      },
+                    ),
+                  ),
+                ),
+                IconButton(
+                    iconSize: 30,
+                    color: Sabitler.primaryCol,
+                    onPressed: _dersEkle,
+                    icon: Icon(Icons.arrow_forward_ios_sharp)),
               ],
             )
           ],
@@ -77,7 +107,35 @@ class _OrtalamaHesaplaPageState extends State<OrtalamaHesaplaPage> {
 
   _buildTextFormField() {
     return TextFormField(
-      decoration: InputDecoration.collapsed(hintText: 'Hint Text'),
+      onSaved: (deger) {
+        setState(() {
+          girilenDers = deger!;
+        });
+      },
+      validator: (s) {
+        if (s!.isEmpty) {
+          return 'ders adını giriniz';
+        } else {
+          return null;
+        }
+      },
+      decoration: InputDecoration(
+          hintText: 'Matematik',
+          border: OutlineInputBorder(borderRadius: Sabitler.border),
+          filled: true,
+          fillColor: Sabitler.primaryCol.shade100),
     );
+  }
+
+  void _dersEkle() {
+    if (formKey.currentState != null) {
+      if (formKey.currentState!.validate()) {
+        formKey.currentState!.save();
+        var eklenecekDers = Ders(ad: girilenDers, puan: ort!, kredi: kredi!);
+        // ignore: avoid_print
+        DataHelper.dersEkle(eklenecekDers);
+        setState(() {});
+      }
+    }
   }
 }

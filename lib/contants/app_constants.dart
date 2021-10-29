@@ -16,4 +16,22 @@ class Sabitler {
       fontSize: 24,
       color: primaryCol,
       fontStyle: FontStyle.italic);
+  static BorderRadius border = BorderRadius.circular(15);
+
+  static final TextStyle dersStyle = TextStyle(
+      fontWeight: FontWeight.w600,
+      fontSize: 16,
+      color: primaryCol,
+      fontStyle: FontStyle.italic);
+  static final TextStyle ortalamaGecti = TextStyle(
+      overflow: TextOverflow.clip,
+      fontWeight: FontWeight.w900,
+      fontSize: 55,
+      color: Colors.green.shade900,
+      fontStyle: FontStyle.italic);
+  static final TextStyle ortalamaKaldi = TextStyle(
+      fontWeight: FontWeight.w900,
+      fontSize: 55,
+      color: Colors.red.shade600,
+      fontStyle: FontStyle.italic);
 }
